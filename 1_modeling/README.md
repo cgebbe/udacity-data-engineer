@@ -8,6 +8,7 @@
     - [Setup](#setup-1)
     - [Content](#content-1)
   - [Review](#review)
+- [Relational Data Model](#relational-data-model)
 
 
 # Introduction
@@ -104,7 +105,7 @@ Data modeling according to ChatGPT
 - identify entitites (e.g. person, thing, concept)
 - define attributes (=columns)
 - determine relationships
-- normalize data = reduce redundancy, organize into tables
+- normalize data = organize into tables (goal: reduce redundancy)
 - create data model = visualize tables and relationships
 
 ## Review
@@ -118,3 +119,18 @@ Data modeling according to ChatGPT
 - How to create tables and insert data into PostgreSQL
 - How to create tables and insert data into Apache Cassandra
 
+# Relational Data Model
+
+- OLAP vs OLTP (analytical vs. transactional)
+- normalization (first, second, third) normal form
+  - 1NF = no arrays
+  - 2NF = non-key columns depend on ENTIRE primary key
+  - 3NF = non-key columns ONLY depend on primar key (not any other non-key column, i.e. 'transitive' dependency)
+- denormalization
+  - problem: normalization great for consistency and removing redundancy but requires slow JOINs
+  - solution: denormalize for speedup
+
+- Fact table = main data, many rows/transactions, foreign keys to dim tables
+- dimension tables = descriptibe information, usually much smaller
+- Star schema (denormalized, one central fact table) vs snowflake schema (more normalized, usually 1NF or 2NF)
+  - see https://bluepi-in.medium.com/deep-diving-in-the-world-of-data-warehousing-78c0d52f49a
