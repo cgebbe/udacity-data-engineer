@@ -7,8 +7,14 @@
   - [Exercise Apache Cassandra](#exercise-apache-cassandra)
     - [Setup](#setup-1)
     - [Content](#content-1)
-  - [Review](#review)
+  - [Conclusion](#conclusion)
 - [Relational Data Model](#relational-data-model)
+  - [Conclusion](#conclusion-1)
+- [NoSQL data models](#nosql-data-models)
+  - [Exercises Cassandra](#exercises-cassandra)
+  - [Conclusion](#conclusion-2)
+- [Project: Data Modeling with Cassandra](#project-data-modeling-with-cassandra)
+  - [Lessons learned](#lessons-learned)
 
 
 # Introduction
@@ -108,7 +114,7 @@ Data modeling according to ChatGPT
 - normalize data = organize into tables (goal: reduce redundancy)
 - create data model = visualize tables and relationships
 
-## Review
+## Conclusion
 
 - What Data Modeling is
 - Stakeholders involved in Data Modeling
@@ -134,3 +140,84 @@ Data modeling according to ChatGPT
 - dimension tables = descriptibe information, usually much smaller
 - Star schema (denormalized, one central fact table) vs snowflake schema (more normalized, usually 1NF or 2NF)
   - see https://bluepi-in.medium.com/deep-diving-in-the-world-of-data-warehousing-78c0d52f49a
+
+- when creating tables and specifying dtypes..
+  - `int NOT NULL` doesn't allow empty fields
+  - `UNIQUE`
+  - `PRIMARY KEY` = can be one or several cols (then called composite key). Also, implies NULL and UNIQUE
+- special actions
+  - `UPSERT` = insert or update row
+  - `INSERT`
+  - can be combined with `ON CONFLICT DO NOTHING` or `ON CONFLICT DO UPDATE`
+
+## Conclusion
+- Codd’s 12 guidelines of relational database design
+- OLAP and OLTP
+- database normalization, normal forms, denormalization
+- Fact vs. dimension tables
+- star and snowflake schema
+
+# NoSQL data models
+
+- eventual consistency
+- CAP = any data store can only provide 2/3 features
+  - Consistency = all nodes see same data
+  - Availability = responds to every request (somewhat quick?)
+  - Partition tolerance (against lost connectivity between nodes)
+- Apache Cassandra supports Availabily and partition tolerance, but only eventual consistency
+
+
+- Cassandra does not support JOINS. One query can only access one table. Therefore,..
+  - denormalization !!! -> model data for queries (many new tables)
+  - secondary indexes
+  - collections
+  - user-defined-functions (UDF)
+  - materialized views
+- CQL like SQL without JOINS, GROUP-BY, subqueries
+
+## Exercises Cassandra
+
+- `WHERE`
+  - can only be used on PRIMARY KEY
+  - with `ALLOW FILTERING` on all columns, but results in full scan (inefficient!)
+  - should be used in every query (unless you really want all data)
+- **partition key**
+  - = part of primary key deciding how data is partitioned
+  - only exists in NoSQL dbs? At least only distributed dbs...
+  - can also be a composite (but we didn't discuss this in lecture)
+- **primary key**
+  - = partition key + optionally several clustering columns
+  - must be unique (if not unique, queries return only one row)
+- **clustering col**
+  - = for sorting and ranged queries (ascending by default)
+  - should be used in order when SELECT ?!
+  - partition key NOT used 
+
+```sql
+-- note that album_name is primary_key AND clustering column
+CREATE TABLE IF NOT EXISTS music_library
+(year int, artist_name text, album_name text, city text, PRIMARY KEY (artist_name, album_name, city))"
+```
+
+## Conclusion
+
+- no JOIN, so model tables for your queries!
+- Primary Key, Partition Key, and Clustering Column
+- WHERE only on primary key (or inefficiently on all)
+
+# Project: Data Modeling with Cassandra
+
+- Task:
+  - Given some queries in natural language, setup an appropriate cassandra data model
+  - Then, transfer several CSV files via ETL into database
+- Technical details
+  - can only be done in their project
+  - need to setup DNS over cloudflare, see https://udacity.zendesk.com/hc/en-us/articles/115004653246?input_string=workspace+not+loading
+
+
+## Lessons learned
+
+- Why not everything a clustering column?
+  - clustering columns not really efficient for filtering ?!
+  - think of partition key and clustering cols as nested sorted map
+    - https://tech.ebayinc.com/engineering/cassandra-data-modeling-best-practices-part-1/
