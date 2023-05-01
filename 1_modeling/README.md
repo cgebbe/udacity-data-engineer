@@ -15,6 +15,7 @@
   - [Conclusion](#conclusion-2)
 - [Project: Data Modeling with Cassandra](#project-data-modeling-with-cassandra)
   - [Lessons learned](#lessons-learned)
+  - [Review](#review)
 
 
 # Introduction
@@ -221,3 +222,14 @@ CREATE TABLE IF NOT EXISTS music_library
   - clustering columns not really efficient for filtering ?!
   - think of partition key and clustering cols as nested sorted map
     - https://tech.ebayinc.com/engineering/cassandra-data-modeling-best-practices-part-1/
+- great guidelines on efficient data modeling from ebay
+  -  https://tech.ebayinc.com/engineering/cassandra-data-modeling-best-practices-part-1/
+
+## Review
+
+- actually "roughtly one table per query" pattern, but here exactly?
+  - https://www.datastax.com/blog/basic-rules-cassandra-data-modeling
+- second query
+  - shall use composite partition key ((user_id, session_id), item_in_session)
+- third query
+  - no user_id in SELECT
