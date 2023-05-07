@@ -67,10 +67,6 @@ def create_tables(cur, conn):
     cur.execute(create_query.strip())
     conn.commit()
 
-    
-import os
-import dotenv
-dotenv.load_dotenv()
 
 def main():
     config = configparser.ConfigParser()
