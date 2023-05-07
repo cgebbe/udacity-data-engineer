@@ -12,6 +12,7 @@
   - [Conclusion](#conclusion-1)
 - [Project](#project)
   - [steps](#steps)
+  - [lessons learned](#lessons-learned)
 
 
 # Intro Data Warehouse
@@ -380,6 +381,10 @@ DISTSTYLE EVEN;
 
 ## steps
 
+- IAC
+  - setup S3, EC2, etc. using boto3 example account
+  - setup Redshift database
+
 - Create Table Schemas
 - [ ] Design schemas for your fact and dimension tables
 - [ ] Write a SQL CREATE statement for each of these tables in sql_queries.py
@@ -398,3 +403,11 @@ DISTSTYLE EVEN;
 - Documentation
 - [ ] Discuss the purpose of this database in context of the startup, Sparkify, and their analytical goals.
 - [ ] State and justify your database schema design and ETL pipeline.
+
+
+## lessons learned
+
+- redshift hierarchy
+  - cluster = collection of compute nodes and associated resources
+  - database = collection of tables, views and other database objects
+  - table = ...
