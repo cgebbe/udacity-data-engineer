@@ -382,8 +382,8 @@ DISTSTYLE EVEN;
 ## steps
 
 - IAC
-  - setup S3, EC2, etc. using boto3 example account
-  - setup Redshift database
+- [x] setup S3, EC2, etc. using boto3 example account
+- [x] setup Redshift database
 
 - Create Table Schemas
 - [ ] Design schemas for your fact and dimension tables
