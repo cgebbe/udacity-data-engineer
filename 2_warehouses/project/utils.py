@@ -1,7 +1,13 @@
-from pprint import pprint
+import pprint
 from psycopg2.extras import RealDictCursor
 import configparser
 import psycopg2
+from loguru import logger
+import sys
+
+logger.remove()
+logger.add("log.log", level="INFO")
+logger.add(sink=sys.stdout, level="INFO")
 
 
 def read_config(config_path="dwh.cfg"):
@@ -41,13 +47,13 @@ class Connection:
 
     def run(self, query: str):
         query = query.strip()
-        print(query)
+        logger.info(query)
         assert query.endswith(";")
 
         self.cur.execute(query)
         try:
             rows = self.cur.fetchall()
-            pprint(rows)
+            logger.info(pprint.pformat(rows))
         except psycopg2.ProgrammingError as e:
             if "no results to fetch" in str(e):
                 pass

@@ -393,6 +393,7 @@ DISTSTYLE EVEN;
 - IAC
 - [x] setup S3, EC2, etc. using boto3 example account
 - [x] setup Redshift database
+- NOTE for myself: Used IAC solution notebook from exercise
 
 - Create Table Schemas
 - [x] Design schemas for your fact and dimension tables
@@ -403,39 +404,15 @@ DISTSTYLE EVEN;
 - [x] Add redshift database and IAM role info to dwh.cfg.
 - [x] Test by running create_tables.py and checking the table schemas in your redshift database. You can use Query Editor in the AWS Redshift console for this.
 
-
-- ETL
-  - for song, then for events (check how many there are!)
-  - drop table if exist
-  - create table
-  - copy from JSON s3 into 
-  - then copy from staging table into final table
-
-```sql
--- copy from JSON to staging
-COPY my_temp_table FROM 's3://my-bucket/my-folder/' 
-    CREDENTIALS 'aws_iam_role=arn:aws:iam::1234567890:role/my-redshift-role' 
-    JSON 'auto' 
-    REGION 'us-west-2';
-
-
--- copy from staging to redshift
-SELECT col1, UPPER(col2), col3 * 2 AS col3_doubled
-INTO target_table3
-FROM source_table
-WHERE col1 IN (1, 2, 3);
-```
-
 - Build ETL Pipeline
-- [ ] Implement the logic in etl.py to load data from S3 to staging tables on Redshift.
-- [ ] Implement the logic in etl.py to load data from staging tables to analytics tables on Redshift.
-- [ ] Test by running etl.py after running create_tables.py and running the analytic queries on your Redshift database to compare your results with the expected results.
+- [x] Implement the logic in etl.py to load data from S3 to staging tables on Redshift.
+- [x] Implement the logic in etl.py to load data from staging tables to analytics tables on Redshift.
+- [x] Test by running etl.py after running create_tables.py and running the analytic queries on your Redshift database to compare your results with the expected results.
 - [ ] Delete your redshift cluster when finished.
 
 - Documentation
-- [ ] Discuss the purpose of this database in context of the startup, Sparkify, and their analytical goals.
-- [ ] State and justify your database schema design and ETL pipeline.
-
+- [x] Discuss the purpose of this database in context of the startup, Sparkify, and their analytical goals.
+- [x] State and justify your database schema design and ETL pipeline.
 
 ## lessons learned
 

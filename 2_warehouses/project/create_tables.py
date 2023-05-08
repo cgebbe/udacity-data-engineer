@@ -1,8 +1,11 @@
-import configparser
-import psycopg2
-from sql_queries import create_table_queries, drop_table_queries
+import utils
 
-create_query="""
+
+queries = dict()
+queries["drop"] = "DROP TABLE IF EXISTS songplays, time, songs, artists, users;"
+queries[
+    "create"
+] = """
 -- Create dimension table: users
 CREATE TABLE users (
     user_id INT PRIMARY KEY,
@@ -58,45 +61,21 @@ CREATE TABLE songplays (
 );
 """
 
-drop_query="""
-DROP TABLE IF EXISTS songplays, time, songs, artists, users;
-"""
-
-show_query="""
+queries[
+    "show"
+] = """
 SELECT table_name
 FROM information_schema.tables
 WHERE table_schema = 'public'
 ORDER BY table_name;
 """
 
-from pprint import pprint
-    
+
 def main():
-    config = configparser.ConfigParser()
-    config.read('dwh.cfg')
-
-    vals = list(config['CLUSTER'].values())
-    conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(*vals))
-    cur = conn.cursor()
-    
-    def _query(q: str):
-        print(f"Executing the following query: \n{q}")
-        cur.execute(q.strip())
-        try:
-            rows = cur.fetchall()
-            pprint(rows)            
-        except psycopg2.ProgrammingError as e:
-            if "no results to fetch" in str(e):
-                pass
-            else:
-                raise e
-        conn.commit()
-    
-    _query(drop_query)
-    _query(create_query)
-    _query(show_query)
-
-    conn.close()
+    with utils.Connection() as conn:
+        for k, v in queries.items():
+            print(f"### {k.upper()}")
+            conn.run(v)
 
 
 if __name__ == "__main__":

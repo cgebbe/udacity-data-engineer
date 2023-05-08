@@ -23,6 +23,23 @@ CREATE TABLE song_stage_table (
 );
 """
 
+song_queries[
+    "stage_songs"
+] = f"""
+COPY song_stage_table
+--FROM 's3://udacity-dend/song_data/A/A/A/' -- use subset
+FROM 's3://udacity-dend/song_data/'
+IAM_ROLE {role}
+JSON 'auto'
+STATUPDATE ON
+MAXERROR 1
+COMPUPDATE OFF;
+"""
+
+song_queries["list"] = utils.get_list_query("song_stage_table")
+song_queries["count"] = utils.get_count_query("song_stage_table")
+
+
 event_queries = dict()
 event_queries["drop"] = utils.get_drop_query("event_stage_table")
 event_queries[
@@ -64,22 +81,6 @@ COMPUPDATE OFF;
 event_queries["list"] = utils.get_list_query("event_stage_table")
 event_queries["count"] = utils.get_count_query("event_stage_table")
 
-
-song_queries[
-    "stage_songs"
-] = f"""
-COPY song_stage_table
-FROM 's3://udacity-dend/song_data/A/A/A/'
-IAM_ROLE {role}
-JSON 'auto'
-STATUPDATE ON
-MAXERROR 1
-COMPUPDATE OFF;
-"""
-
-
-song_queries["list"] = utils.get_list_query("song_stage_table")
-song_queries["count"] = utils.get_count_query("song_stage_table")
 
 load_queries = dict()
 load_queries[
@@ -132,7 +133,7 @@ WHERE e.page = 'NextSong';
 """
 
 # load_queries = dict()
-for t in ["songplays", "time", "songs", "artists", "users"]:
+for t in ["time", "songs", "artists", "users", "songplays"]:
     load_queries[f"list_{t}"] = utils.get_list_query(t)
     load_queries[f"count_{t}"] = utils.get_count_query(t)
 
@@ -146,10 +147,13 @@ LIMIT 3
 
 def main():
     with utils.Connection() as conn:
-        if 0:
-            conn.run(query)
-        else:
-            for k, v in load_queries.items():
+        all_queries = [
+            song_queries,
+            event_queries,
+            load_queries,
+        ]
+        for queries in all_queries:
+            for k, v in queries.items():
                 print(f"### {k.upper()}")
                 conn.run(v)
 
