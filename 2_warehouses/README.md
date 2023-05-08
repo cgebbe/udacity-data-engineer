@@ -266,8 +266,17 @@ LIMIT  20;
 
 ```sql
 --- COPY to my_table in stage using Redshift SQL dialect
-COPY my_table
-FROM 's3://my-bucket/my-data.csv'
+COPY mytable
+FROM 's3://my-bucket/my-folder/'
+IAM_ROLE 'my-redshift-role'
+JSON 'auto'
+STATUPDATE ON
+MAXERROR 10
+COMPUPDATE OFF
+PARALLEL 4;
+
+
+
 --- Alternatively use manifest file:
 --- FROM 's3://my-bucket/my-manifest.manifest'
 CREDENTIALS 'aws_iam_role=arn:aws:iam::123456789012:role/MyRedshiftRole'
@@ -394,6 +403,29 @@ DISTSTYLE EVEN;
 - [x] Add redshift database and IAM role info to dwh.cfg.
 - [x] Test by running create_tables.py and checking the table schemas in your redshift database. You can use Query Editor in the AWS Redshift console for this.
 
+
+- ETL
+  - for song, then for events (check how many there are!)
+  - drop table if exist
+  - create table
+  - copy from JSON s3 into 
+  - then copy from staging table into final table
+
+```sql
+-- copy from JSON to staging
+COPY my_temp_table FROM 's3://my-bucket/my-folder/' 
+    CREDENTIALS 'aws_iam_role=arn:aws:iam::1234567890:role/my-redshift-role' 
+    JSON 'auto' 
+    REGION 'us-west-2';
+
+
+-- copy from staging to redshift
+SELECT col1, UPPER(col2), col3 * 2 AS col3_doubled
+INTO target_table3
+FROM source_table
+WHERE col1 IN (1, 2, 3);
+```
+
 - Build ETL Pipeline
 - [ ] Implement the logic in etl.py to load data from S3 to staging tables on Redshift.
 - [ ] Implement the logic in etl.py to load data from staging tables to analytics tables on Redshift.
@@ -411,3 +443,5 @@ DISTSTYLE EVEN;
   - cluster = collection of compute nodes and associated resources
   - database = collection of tables, views and other database objects
   - table = ...
+- redshift cluster query editor
+  - didn't use it at all because current user doesn't have rights to create connection, but sounds helpful
