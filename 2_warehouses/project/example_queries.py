@@ -30,12 +30,27 @@ FROM users u
 GROUP BY u.gender;
 """
 
+if 0:
+    examples = dict()
+    tabs = [
+        "event_stage_table",
+        "song_stage_table",
+        "songplays",
+        "users",
+        "songs",
+        "artists",
+        "time",
+    ]
+    for t in tabs:
+        examples[f"list_{t}"] = utils.get_list_query(t)
+        examples[f"count_{t}"] = utils.get_count_query(t)
+
 
 def main():
     with utils.Connection() as conn:
         # conn.run(query)
         for k, v in examples.items():
-            print(f"### {k.upper()}")
+            print(f"\n\n\n### {k.upper()}")
             conn.run(v)
 
 
