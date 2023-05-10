@@ -1,3 +1,4 @@
+"""Example query statements including execution."""
 import utils
 
 
@@ -47,6 +48,7 @@ if 0:
 
 
 def main():
+    """Run queries."""
     with utils.Connection() as conn:
         # conn.run(query)
         for k, v in examples.items():

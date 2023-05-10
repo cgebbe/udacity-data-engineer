@@ -1,3 +1,4 @@
+"""All SQL queries."""
 import configparser
 import utils
 
