@@ -1,9 +1,15 @@
+"""Create tables (and drop if required)."""
 import configparser
 import psycopg2
 from sql_queries import create_table_queries, drop_table_queries
 
 
 def drop_tables(cur, conn):
+    """Drop tables.
+
+    :param cur: cursor
+    :param conn: connection
+    """
     for query in drop_table_queries:
         print(query)
         cur.execute(query)
@@ -11,6 +17,11 @@ def drop_tables(cur, conn):
 
 
 def create_tables(cur, conn):
+    """Create tables.
+
+    :param cur: cursor
+    :param conn: connection
+    """
     for query in create_table_queries:
         print(query)
         cur.execute(query)
@@ -18,6 +29,7 @@ def create_tables(cur, conn):
 
 
 def main():
+    """Triggers dropping and creating."""
     config = configparser.ConfigParser()
     config.read("dwh.cfg")
 
