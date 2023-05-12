@@ -293,12 +293,12 @@ Three JSON files
 
 ## TODO internal
 
-- [ ] setup infrastructure
+- [x] setup infrastructure
   - could do manually, but would highly prefer Terraform
-  - Glue ecosysem
-    - there
-- [ ] copy stuff to S3 (AW CLI)
+- [x] copy stuff to S3 (AW CLI)
+  - simply via AWS CLI
 - [ ] copy into landing zone via Glue Studio Job
+  - this also checks whether my VPC-endpoint is setup correctly!
 
 
 ## Lessons learned
@@ -323,5 +323,6 @@ Why VPC endpoint, route table, etc. is necessary
 - S3 bucket itself resides in no VPC!
 - VPC endpoint
   - enables communication between private VPC and other AWS services
+  - When executing AWS Glue jobs, one selects a VPC!
 - route table
   - directs traffic to VPC endpoint
