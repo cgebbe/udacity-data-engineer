@@ -5,6 +5,11 @@
 - [Spark Essentials](#spark-essentials)
 - [Using Spark in AWS](#using-spark-in-aws)
 - [Lakehouse architecture](#lakehouse-architecture)
+- [Project STEDI Step Trainer](#project-stedi-step-trainer)
+  - [Rubrik](#rubrik)
+  - [Data](#data)
+  - [TODO internal](#todo-internal)
+  - [Lessons learned](#lessons-learned)
 
 FYI: All exercises are available here: https://github.com/udacity/nd027-Data-Engineering-Data-Lakes-AWS-Exercises
 
@@ -229,5 +234,94 @@ Data Privacy
   - save output in trusted zone
 
 Streaming
-- ...
+- Spark Streaming for near real-time data receiving
+- possible message brokers
+  - Kafka
+  - AWS SQS (Simple Queue Service)
+  - Amazon Kinesis
+- Glue can load data directly from Kafka and Kinesis
+- Alternatively, Kafka (+x?) can store directly in S3
 
+Curated data
+- *Exercise: Curated data*
+  - Clone previous job for trusted zone
+  - add `DropFields` transform dropping accelormeter fields (?!)
+
+# Project STEDI Step Trainer
+
+## Rubrik
+
+- https://review.udacity.com/#!/rubrics/4883/view
+- Landing Zone
+  - [ ] ingest data from S3 using Glue Studio
+    - customer_landing_to_trusted.py
+    - accelerometer_landing_to_trusted_zone.py 
+  - [ ] create Glue table manually using SQL DDL scripts
+    - customer_landing.sql
+    - accelerometer_landing.sql
+  - [ ] query landing zone using Athena. Take screenshots!
+    - customer_landing.png
+    - accelerometer_landing.png
+- Trusted Zone
+  - [ ] configure glue studio to dynamically (?) update glue table schema from JSON data
+    - Glue Job Python code shows that the option to dynamically infer and update schema is enabled?!
+  - [ ] query trusted tables using Athena
+    - take screenshot
+  - [ ] inner JOIN privacy table via glue job   
+    - customer_landing_to_trusted.py
+    - accelerometer_landing_to_trusted_zone.py 
+  - [ ] DROP rows where sharedWithResearchAsOfDate==None
+    - customer_landing_to_trusted.py
+    - accelerometer_landing_to_trusted_zone.py 
+- Curated Zone
+  - [ ] create customers_curated
+    - Only keep customers with accelerometer data and share aggreement
+    - take screenshot cusomter_trusted.png
+  - [ ] Sanitize step_trainer_trusted
+    - read from S3
+    - only keep records from curated customers (see above)
+  - [ ] create machine_learning curated
+    - JOIN step_trainer_trusted and trusted_accelormeter on timestamp
+    - only keep customers who have agree to share data
+
+## Data
+
+Three JSON files
+- customer records
+- step trainer records
+- accelormeter records
+
+## TODO internal
+
+- [ ] setup infrastructure
+  - could do manually, but would highly prefer Terraform
+  - Glue ecosysem
+    - there
+- [ ] copy stuff to S3 (AW CLI)
+- [ ] copy into landing zone via Glue Studio Job
+
+
+## Lessons learned
+
+Glue ecoystem
+- glue job
+  - serverless data processing service
+  - requires an IAM role for e.g. S3 access
+- glue crawler
+  - = automated data discover service for glue data catalog
+  - infers schemas and creates metadata tables
+- glue connection 
+  - defines connection to (usually external?) data source
+- glue registry
+  - stores and versions schemas and transformations
+  - provides additional functionality to glue data catalog
+- glue studio 
+  - visual interface for building and running glue ETL jobs
+
+Why VPC endpoint, route table, etc. is necessary
+- to enable private connection between S3 bucket and AWS Glue
+- S3 bucket itself resides in no VPC!
+- VPC endpoint
+  - enables communication between private VPC and other AWS services
+- route table
+  - directs traffic to VPC endpoint
