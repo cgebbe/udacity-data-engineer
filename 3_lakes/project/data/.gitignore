@@ -1,0 +1,28 @@
+# Ignore Terraform state files
+*.tfstate
+*.tfstate.backup
+*.tfstate.backup.*
+*.tfvars
+
+# Ignore local .terraform directories
+**/.terraform/*
+
+# Ignore override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore any plan output files
+*.tfplan
+
+# Ignore sensitive or generated files
+*.pem
+*.tfvars.json
+*.tfplan
+
+# Ignore Visual Studio Code settings
+.vscode/
+
+# Ignore macOS specific files
+.DS_Store
