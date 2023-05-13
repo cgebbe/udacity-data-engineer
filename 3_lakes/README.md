@@ -10,6 +10,7 @@
   - [Data](#data)
   - [TODO internal](#todo-internal)
   - [Lessons learned](#lessons-learned)
+  - [Solutions from other students](#solutions-from-other-students)
 
 FYI: All exercises are available here: https://github.com/udacity/nd027-Data-Engineering-Data-Lakes-AWS-Exercises
 
@@ -171,6 +172,7 @@ spark.sql('''
   - scheduled jobs
   - can be created as python files and uploaded
   - can be created via drag/drop in Glue Studio consisting of
+    - https://docs.aws.amazon.com/glue/latest/dg/tables-described.html
     - source (S3, glue table, databases)
     - transform
     - target
@@ -256,10 +258,10 @@ Curated data
   - [ ] ingest data from S3 using Glue Studio
     - customer_landing_to_trusted.py
     - accelerometer_landing_to_trusted_zone.py 
-  - [ ] create Glue table manually using SQL DDL scripts
+  - [x] create Glue table manually using SQL DDL scripts
     - customer_landing.sql
     - accelerometer_landing.sql
-  - [ ] query landing zone using Athena. Take screenshots!
+  - [x] query landing zone using Athena. Take screenshots!
     - customer_landing.png
     - accelerometer_landing.png
 - Trusted Zone
@@ -297,8 +299,12 @@ Three JSON files
   - could do manually, but would highly prefer Terraform
 - [x] copy stuff to S3 (AW CLI)
   - simply via AWS CLI
-- [ ] copy into landing zone via Glue Studio Job
+- [x] create SQL DDL scripts to create Glue tables
+  - customer_landing.sql
+  - accelerometer_landing.sql
   - this also checks whether my VPC-endpoint is setup correctly!
+- [x] run these script
+- [x] query tables using Athena
 
 
 ## Lessons learned
@@ -319,10 +325,28 @@ Glue ecoystem
   - visual interface for building and running glue ETL jobs
 
 Why VPC endpoint, route table, etc. is necessary
-- to enable private connection between S3 bucket and AWS Glue
-- S3 bucket itself resides in no VPC!
-- VPC endpoint
-  - enables communication between private VPC and other AWS services
-  - When executing AWS Glue jobs, one selects a VPC!
-- route table
-  - directs traffic to VPC endpoint
+- still not 100% clear, i think in this case bogus...
+- AWS Glue jobs are serverless and run by default "outside" any VPC
+- AWS Glue jobs *might* need to run inside VPC wout internet access
+  - for e.g. databases
+  - for NAT gateways, Elastic IPs
+  - ...?
+- In such a case
+  - VPC endpoint
+    - enables communication between private VPC and other AWS services
+    - When executing AWS Glue jobs, one selects a VPC!
+  - route table
+    - directs traffic to VPC endpoint
+- Sidenote: EC2 can access S3 buckets if EC2 has internet access
+
+How to run SQL DDL script?
+- running dummy jobs on AWS Studio with IAM policy works
+- Hmm... this is surprisingly tricky?!
+- https://docs.aws.amazon.com/glue/latest/dg/tables-described.html
+- Apparently need to use AWS Athena for this
+  - Athena = serverless query service for data stored in S3
+  - Athena integrates Glue Data Catalog
+
+## Solutions from other students
+
+- https://github.com/Lal4Tech/Data-Engineering-With-AWS/tree/main/3_Spark_and_Data_Lakes/project

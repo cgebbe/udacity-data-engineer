@@ -1,3 +1,7 @@
+# ignore large data repos
+data/
+data_correct/
+
 # Ignore Terraform state files
 *.tfstate
 *.tfstate.backup
