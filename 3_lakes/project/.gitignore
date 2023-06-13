@@ -1,6 +1,6 @@
 # ignore large data repos
 data/
-data_correct/
+data*/
 
 # Ignore Terraform state files
 *.tfstate

@@ -140,6 +140,11 @@ data "aws_iam_policy_document" "s3_access" {
   }
 }
 
+
+# WARNING: Added later manually: AmazonS3FullAccess" and "AWSGlueConsoleFullAccess
+# according to https://knowledge.udacity.com/questions/989390
+# but I don't think this was necessary.
+
 # Grant Glue policy for special Glue-specific S3 buckets 
 resource "aws_iam_role_policy" "glue_access" {
   name   = "GlueAccess"
