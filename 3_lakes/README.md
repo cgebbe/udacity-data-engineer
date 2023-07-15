@@ -286,7 +286,7 @@ The Data Science team has done some preliminary data analysis and determined tha
     - trusted 497
   - accelerometer
     - landing 744413
-    - trusted 413460 / 826920
+    - trusted 413460 (veri fied through manual SQL statement)
 - [x] Sanitize the _Accelerometer data_ from the Mobile App (Landing Zone) - and only store Accelerometer Readings from customers who agreed to share their data for _research purposes_ (Trusted Zone) - creating a Glue Table called accelerometer_trusted.
 - [x] You need to verify your Glue job is successful and only contains Customer Records from people who agreed to share their data. Query your Glue customer_trusted table with Athena and take a screenshot of the data. Name the screenshot customer_trusted(.png,.jpeg, etc.).
 
@@ -390,6 +390,13 @@ Why did Filter not work?
 
 - likely it did not work because of Null values in column
 - Filter preview doesn't output any rows, tried all conditions
+
+AWS Glue `DynamicDataFrame` appends by default (instead of overwriting)
+
+- there are only workarounds requiring to go to script mode
+  - either add command to purge S3 path
+  - or convert to PySpark Dataframe (instead of Glue Dynamic Frame)
+  - see https://stackoverflow.com/q/52001781/2135504
 
 ## Solutions from other students
 

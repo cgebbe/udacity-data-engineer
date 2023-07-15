@@ -1,3 +1,9 @@
+"""
+NOTE:
+- The Glue table will be created automatically
+- This will NOT overwrite data, see https://stackoverflow.com/q/52001781/2135504
+- I tried to use the "Select Fields" Operator to reduce column-count, but it didn't work.
+"""
 import sys
 from awsglue.transforms import *
 from awsglue.utils import getResolvedOptions
@@ -35,19 +41,18 @@ Join_node1686616829981 = Join.apply(
     transformation_ctx="Join_node1686616829981",
 )
 
-# Script generated for node Select Fields
-SelectFields_node1686616987929 = SelectFields.apply(
-    frame=Join_node1686616829981,
-    paths=["user", "x", "timestamp", "z", "y", "sharewithresearchasofdate"],
-    transformation_ctx="SelectFields_node1686616987929",
+# Script generated for node Amazon S3
+AmazonS3_node1689416443055 = glueContext.getSink(
+    path="s3://udacity-dataengineer-lake-project-s3/accelerometer/trusted/",
+    connection_type="s3",
+    updateBehavior="UPDATE_IN_DATABASE",
+    partitionKeys=[],
+    enableUpdateCatalog=True,
+    transformation_ctx="AmazonS3_node1689416443055",
 )
-
-# Script generated for node accel_trusted
-accel_trusted_node1686616837684 = glueContext.write_dynamic_frame.from_catalog(
-    frame=SelectFields_node1686616987929,
-    database="default",
-    table_name="accelerometer_trusted",
-    transformation_ctx="accel_trusted_node1686616837684",
+AmazonS3_node1689416443055.setCatalogInfo(
+    catalogDatabase="default", catalogTableName="accelerometer_trusted"
 )
-
+AmazonS3_node1689416443055.setFormat("json")
+AmazonS3_node1689416443055.writeFrame(Join_node1686616829981)
 job.commit()
