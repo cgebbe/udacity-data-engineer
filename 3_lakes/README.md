@@ -280,26 +280,92 @@ To simulate the data coming from the various sources, you will need to
 
 The Data Science team has done some preliminary data analysis and determined that the Accelerometer Records each match one of the Customer Records. They would like you to create two AWS Glue Jobs (using Glue studio) that do the following:
 
-- [x] Sanitize the _Customer data_ from the Website (Landing Zone) and only store the Customer Records who agreed to _share their data for research purposes_ (Trusted Zone) - creating a Glue Table called customer_trusted.
-  - customer
-    - landing 999
-    - trusted 497
-  - accelerometer
-    - landing 744413
-    - trusted 413460 (veri fied through manual SQL statement)
-- [x] Sanitize the _Accelerometer data_ from the Mobile App (Landing Zone) - and only store Accelerometer Readings from customers who agreed to share their data for _research purposes_ (Trusted Zone) - creating a Glue Table called accelerometer_trusted.
-- [x] You need to verify your Glue job is successful and only contains Customer Records from people who agreed to share their data. Query your Glue customer_trusted table with Athena and take a screenshot of the data. Name the screenshot customer_trusted(.png,.jpeg, etc.).
+- [x] Sanitize the Customer data from the Website (Landing Zone) and only store the Customer Records who agreed to _share their data for research purposes_ (Trusted Zone) - creating a Glue Table called **customer_trusted**.
+
+```sql
+-- customer-landing: 999
+-- customer-trusted: 497
+-- customer-trusted-wout-duplicates: 497
+
+```
+
+- [x] Sanitize the Accelerometer data from the Mobile App (Landing Zone) - and only store Accelerometer Readings from customers who agreed to _share their data for research purposes_ (Trusted Zone) - creating a Glue Table called **accelerometer_trusted**.
+
+- accelerometer
+
+  - landing 744413
+  - trusted 413460 (veri fied through manual SQL statement)
+
+- [x] You need to verify your Glue job is successful and only contains Customer Records from people who agreed to share their data. Query your Glue customer_trusted table with Athena and take a **screenshot** of the data. Name the screenshot customer_trusted(.png,.jpeg, etc.).
 
 Data Scientists have discovered a data quality issue with the Customer Data. The serial number should be a unique identifier for the STEDI Step Trainer they purchased. However, there was a defect in the fulfillment website, and it used the same 30 serial numbers over and over again for millions of customers! Most customers have not received their Step Trainers yet, but those who have, are submitting Step Trainer data over the IoT network (Landing Zone). The data from the Step Trainer Records has the correct serial numbers.
 
-The problem is that because of this serial number bug in the fulfillment data (Landing Zone), we don’t know which customer the Step Trainer Records data belongs to. The Data Science team would like you to write a Glue job that does the following:
+Because of this serial number bug in the fulfillment data (Landing Zone), we don’t know which customer the Step Trainer Records data belongs to. The Data Science team would like you to write a Glue job that does the following:
 
-- Sanitize the Customer data (Trusted Zone) and create a Glue Table (Curated Zone) that only includes customers who have accelerometer data and have agreed to share their data for research called customers_curated.
+- [x] Sanitize the Customer data (Trusted Zone) and create a Glue Table (Curated Zone) that only includes _customers who have accelerometer data_ and have agreed to share their data for research called **customers_curated**.
+  - NOTE: This should also yield 497 rows given SQL statement below!
+
+```sql
+-- customer_curated: 497 (query below)
+SELECT COUNT(*)
+FROM "customer_trusted"
+WHERE email in (SELECT "user" from "accelerometer_trusted")
+```
 
 Finally, you need to create two Glue Studio jobs that do the following tasks:
 
-- Read the Step Trainer IoT data stream (S3) and populate a Trusted Zone Glue Table called step_trainer_trusted that contains the Step Trainer Records data for customers who have accelerometer data and have agreed to share their data for research (customers_curated).
-- Create an aggregated table that has each of the Step Trainer Readings, and the associated accelerometer reading data for the same timestamp, but only for customers who have agreed to share their data, and make a glue table called machine_learning_curated.
+- [x] Read the Step Trainer IoT data stream (S3) and populate a Trusted Zone Glue Table called **step_trainer_trusted** that contains the Step Trainer Records data for customers who have accelerometer data and have agreed to share their data for research (_customers_curated_).
+
+```sql
+-- step-trainer-landing: 239760
+-- step-trainer-curated: 29970 (query below)
+SELECT COUNT(*)
+FROM "step_trainer_landing"
+WHERE "serialnumber" in (SELECT "serialnumber" from "customer_curated")
+-- LEFT JOIN "customer_curated" ON "customer_curated"."serialnumber" = "step_trainer_landing"."serialnumber"
+LIMIT 10
+```
+
+- [x] Create an aggregated table that has each of the Step Trainer Readings, and the associated accelerometer reading data for the same timestamp, but only for customers who have agreed to share their data, and make a glue table called **machine_learning_curated**.
+
+```sql
+-- machine_learning_curated: 3357 (query below).
+-- WARNING: Has several rows with same timestamp due to duplicates in accel and customer!
+SELECT *
+FROM customer_trusted
+INNER JOIN accelerometer_trusted ON customer_trusted.email = accelerometer_trusted.user
+INNER JOIN step_trainer_curated ON customer_trusted.serialnumber = step_trainer_curated.serialnumber
+WHERE accelerometer_trusted.timestamp = step_trainer_curated.sensorreadingtime
+LIMIT 10
+```
+
+- **INTERIM TASK: check duplicates**
+  - customer.email
+  - (accel.user, accel.timestamp)
+  - (trainer.sensorReadingTime, trainer.serialnumbe)
+
+```sql
+-- yep, many duplicates (at most 6 for AngelDavis and LarryMitra)
+SELECT email, COUNT(*) AS duplicate_count
+FROM customer_landing
+GROUP BY email
+ORDER BY duplicate_count DESC;
+
+-- accelerometer also has a lot of duplicates (at most 6)
+SELECT accelerometer_landing.user, accelerometer_landing.timestamp, COUNT(*) AS duplicate_count
+FROM accelerometer_landing
+GROUP BY accelerometer_landing.user, accelerometer_landing.timestamp
+ORDER BY duplicate_count DESC;
+
+-- step_trainer has few duplicates (5 rows with duplicate_count 2)
+SELECT sensorreadingtime, serialnumber, COUNT(*) AS duplicate_count
+FROM step_trainer_landing
+GROUP BY sensorreadingtime, serialnumber
+HAVING COUNT(*) > 1
+ORDER BY duplicate_count DESC;
+
+
+```
 
 ## Rubrik
 
