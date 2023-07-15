@@ -363,8 +363,6 @@ FROM step_trainer_landing
 GROUP BY sensorreadingtime, serialnumber
 HAVING COUNT(*) > 1
 ORDER BY duplicate_count DESC;
-
-
 ```
 
 ## Rubrik

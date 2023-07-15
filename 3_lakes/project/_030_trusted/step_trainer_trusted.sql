@@ -53,7 +53,7 @@ SQLQuery_node1689420989781 = sparkSqlQuery(
 
 # Script generated for node Amazon S3
 AmazonS3_node1689421055640 = glueContext.getSink(
-    path="s3://udacity-dataengineer-lake-project-s3/step_trainer/curated/",
+    path="s3://udacity-dataengineer-lake-project-s3/step_trainer/trusted/",
     connection_type="s3",
     updateBehavior="UPDATE_IN_DATABASE",
     partitionKeys=[],
@@ -61,7 +61,7 @@ AmazonS3_node1689421055640 = glueContext.getSink(
     transformation_ctx="AmazonS3_node1689421055640",
 )
 AmazonS3_node1689421055640.setCatalogInfo(
-    catalogDatabase="default", catalogTableName="step_trainer_curated"
+    catalogDatabase="default", catalogTableName="step_trainer_trusted"
 )
 AmazonS3_node1689421055640.setFormat("json")
 AmazonS3_node1689421055640.writeFrame(SQLQuery_node1689420989781)

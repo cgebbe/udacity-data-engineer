@@ -21,6 +21,13 @@ spark = glueContext.spark_session
 job = Job(glueContext)
 job.init(args["JOB_NAME"], args)
 
+# Script generated for node step_trusted
+step_trusted_node1689426962697 = glueContext.create_dynamic_frame.from_catalog(
+    database="default",
+    table_name="step_trainer_trusted",
+    transformation_ctx="step_trusted_node1689426962697",
+)
+
 # Script generated for node customer_curated
 customer_curated_node1689426961478 = glueContext.create_dynamic_frame.from_catalog(
     database="default",
@@ -33,13 +40,6 @@ accel_trusted_node1689426962074 = glueContext.create_dynamic_frame.from_catalog(
     database="default",
     table_name="accelerometer_trusted",
     transformation_ctx="accel_trusted_node1689426962074",
-)
-
-# Script generated for node step_curated
-step_curated_node1689426962697 = glueContext.create_dynamic_frame.from_catalog(
-    database="default",
-    table_name="step_trainer_curated",
-    transformation_ctx="step_curated_node1689426962697",
 )
 
 # Script generated for node SQL Query
@@ -56,7 +56,7 @@ SQLQuery_node1689427034697 = sparkSqlQuery(
     mapping={
         "c": customer_curated_node1689426961478,
         "a": accel_trusted_node1689426962074,
-        "s": step_curated_node1689426962697,
+        "s": step_trusted_node1689426962697,
     },
     transformation_ctx="SQLQuery_node1689427034697",
 )
