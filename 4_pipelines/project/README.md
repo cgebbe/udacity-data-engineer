@@ -19,6 +19,7 @@ You'll be provided with a helpers class that contains all the SQL transformation
 from lesson "Airflow and AWS"
 
 - [x] `Create an IAM User in AWS`
+- [x] Connect Airflow and AWS: `Connections - AWS Credentials`
 
 ```python
 # Use S3 inside airflow
@@ -36,9 +37,10 @@ hook = S3Hook(aws_conn_id='aws_credentials')
 list_keys_dag = list_keys()
 ```
 
-- [ ] `Configure Redshift Serverless`
-- [ ] Connect Airflow and AWS: `Connections - AWS Credentials`
-- [ ] `Add Airflow Connections to AWS Redshift`
+- [x] `Configure Redshift Serverless`
+- [x] `Add Airflow Connections to AWS Redshift`
+- [ ] test that Redshift credentials are correct!
+- Not 100% sure they are correct...
 
 - airflow
   - use the one provided by Udacity
