@@ -24,7 +24,7 @@
 #
 # TO-DO: Update the following command with the URI and un-comment it:
 #
-# airflow connections add aws_credentials --conn-uri 'aws://AKIA4QE4NTH3R7EBEANN:s73eJIJRbnqRtll0%2FYKxyVYgrDWXfoRpJCDkcG2m@'
+airflow connections add aws_credentials --conn-uri 'aws://AKIAYFJP35UDJEVXKS5L:I8YkK1VQ9L9V7ql%2FEls9vIsO8iGok9QgTeEcBrQT@'
 #
 #
 # TO-DO: run the follwing command and observe the JSON output: 
@@ -50,7 +50,7 @@
 #
 # TO-DO: Update the following command with the URI and un-comment it:
 #
-# airflow connections add redshift --conn-uri 'redshift://awsuser:R3dsh1ft@default.859321506295.us-east-1.redshift-serverless.amazonaws.com:5439/dev'
+airflow connections add redshift --conn-uri 'redshift://awsuser:R3dsh1ft@default.561130499334.eu-central-1.redshift-serverless.amazonaws.com:5439/dev'
 #
 # TO-DO: update the following bucket name to match the name of your S3 bucket and un-comment it:
 #

@@ -106,7 +106,9 @@ Lesson learned
 
 ## Instructions
 
-- [ ] start airflow
+### Start airflow
+
+- [x] start airflow in workspace (tried this but really tedious, rather setup locally)
 
 ```bash
 # check if already running
@@ -130,14 +132,41 @@ airflow users create --email student@example.com --firstname aStudent --lastname
 ps aux | grep airflow
 ```
 
+- [x] start local airflow
+- [x] trigger example DAG
+  - write PY file
+  - test PY file via `python my_dag.py`
+  - copy file to `$AIRFLOW_HOME/dags` (or change folder in `$AIRFLOW_HOME/airflow.cfg`)
+  - trigger DAG e.g. manually or via CLI
+
+```bash
+# from https://airflow.apache.org/docs/docker-stack/entrypoint.html#entrypoint-commands
+docker run -it -p 8080:8080 -v "/mnt/sda1":"/mnt/sda1" --name airflow apache/airflow:latest bash
+
+# attach to container OR start multiplexer
+bash <(curl -L zellij.dev/launch)
+
+# add admin user (see above)
+airflow users create --email student@example.com --firstname aStudent --lastname aStudent --password admin --role Admin --username admin
+
+# start webserver
+airflow webserver
+
+# start airflow scheduler
+airflow scheduler
+```
+
+### Copy data to own S3 bucket
+
 - [ ] copy to own S3 bucket
   - Log data: s3://udacity-dend/log_data
   - Song data: s3://udacity-dend/song_data
 
 ```bash
+MY_S3_BUCKET="udacity-dataengineer-pipeline-project-s3"
 aws s3 cp s3://udacity-dend/log-data/ ~/log-data/ --recursive
-aws s3 cp ~/log-data/ s3://<my_bucket>/log-data/ --recursive
-aws s3 ls s3://sean-murdock/log-data/
+aws s3 cp ~/log-data/ s3://${MY_S3_BUCKET}/log-data/ --recursive
+aws s3 ls s3://${MY_S3_BUCKET}/log-data/
 ```
 
 - [ ] add default parameters according to these guidelines
