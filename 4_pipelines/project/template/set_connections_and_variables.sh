@@ -54,8 +54,8 @@ airflow connections add redshift --conn-uri 'redshift://awsuser:R3dsh1ft@default
 #
 # TO-DO: update the following bucket name to match the name of your S3 bucket and un-comment it:
 #
-# airflow variables set s3_bucket sean-murdock
+airflow variables set s3_bucket udacity-dataengineer-pipeline-project-s3
 #
 # TO-DO: un-comment the below line:
 #
-# airflow variables set s3_prefix data-pipelines
+airflow variables set s3_prefix data-pipelines

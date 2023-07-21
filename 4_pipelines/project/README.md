@@ -137,11 +137,15 @@ ps aux | grep airflow
   - write PY file
   - test PY file via `python my_dag.py`
   - copy file to `$AIRFLOW_HOME/dags` (or change folder in `$AIRFLOW_HOME/airflow.cfg`)
+  - `airflow dags list`
   - trigger DAG e.g. manually or via CLI
 
 ```bash
 # from https://airflow.apache.org/docs/docker-stack/entrypoint.html#entrypoint-commands
 docker run -it -p 8080:8080 -v "/mnt/sda1":"/mnt/sda1" --name airflow apache/airflow:latest bash
+
+# later on:
+docker start airflow
 
 # attach to container OR start multiplexer
 bash <(curl -L zellij.dev/launch)
@@ -158,18 +162,20 @@ airflow scheduler
 
 ### Copy data to own S3 bucket
 
-- [ ] copy to own S3 bucket
+- [x] copy to own S3 bucket
   - Log data: s3://udacity-dend/log_data
   - Song data: s3://udacity-dend/song_data
 
 ```bash
 MY_S3_BUCKET="udacity-dataengineer-pipeline-project-s3"
-aws s3 cp s3://udacity-dend/log-data/ ~/log-data/ --recursive
-aws s3 cp ~/log-data/ s3://${MY_S3_BUCKET}/log-data/ --recursive
-aws s3 ls s3://${MY_S3_BUCKET}/log-data/
+DIRNAME="log_data"
+DIRNAME="song_data"  #song-data contains many more dirs (B/...)
+aws s3 cp s3://udacity-dend/${DIRNAME}/ ~/${DIRNAME}/ --recursive
+aws s3 cp ~/${DIRNAME}/ s3://${MY_S3_BUCKET}/${DIRNAME}/ --recursive
+aws s3 ls s3://${MY_S3_BUCKET}/${DIRNAME}/
 ```
 
-- [ ] add default parameters according to these guidelines
+- [x] add default parameters according to these guidelines
 
   - The DAG does not have dependencies on past runs
   - On failure, the task are retried 3 times
@@ -177,9 +183,19 @@ aws s3 ls s3://${MY_S3_BUCKET}/log-data/
   - Catchup is turned off
   - Do not email on retry
 
-- [ ] configure task dependencies s.t. below
+- [x] configure task dependencies s.t. below
 
 ![](README.assets/2023-07-16-21-15-09.png)
+
+### Check if plugin with 4 custom operators and helper file is loaded
+
+- write plugin (already done in template)
+- check in UI: `Admin` -> `Plugins` should list some plugins
+- restart scheduler and webserver!
+  - `airflow webserver -D` # Stop webserver
+  - `airflow scheduler -D` # Stop scheduler
+
+### Fill in custom operators
 
 - [ ] build Stage operator
   - loads JSON from S3 to Redshift staging
