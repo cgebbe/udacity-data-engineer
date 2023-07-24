@@ -178,7 +178,7 @@ aws s3 ls s3://${MY_S3_BUCKET}/${DIRNAME}/
 - [x] add default parameters according to these guidelines
 
   - The DAG does not have dependencies on past runs
-  - On failure, the task are retried 3 times
+  - On failure, the task are retried 3 timess
   - Retries happen every 5 minutes
   - Catchup is turned off
   - Do not email on retry
@@ -189,6 +189,8 @@ aws s3 ls s3://${MY_S3_BUCKET}/${DIRNAME}/
 
 ### Check if plugin with 4 custom operators and helper file is loaded
 
+- [x] Import DAG with plugin successfully
+
 - write plugin (already done in template)
 - check in UI: `Admin` -> `Plugins` should list some plugins
 - restart scheduler and webserver!
@@ -198,10 +200,12 @@ aws s3 ls s3://${MY_S3_BUCKET}/${DIRNAME}/
 ### Fill in custom operators
 
 - [ ] build Stage operator
+
   - loads JSON from S3 to Redshift staging
   - inputs
     - s3-path
     - redshift-table-name
+
 - [ ] build Fact and Dimension operator
   - inputs
     - SQL statement

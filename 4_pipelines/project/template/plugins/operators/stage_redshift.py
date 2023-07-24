@@ -10,7 +10,8 @@ class StageToRedshiftOperator(BaseOperator):
                  # Define your operators params (with defaults) here
                  # Example:
                  # redshift_conn_id=your-connection-name
-                 *args, **kwargs):
+                 *args,
+                 **kwargs):
 
         super(StageToRedshiftOperator, self).__init__(*args, **kwargs)
         # Map params here

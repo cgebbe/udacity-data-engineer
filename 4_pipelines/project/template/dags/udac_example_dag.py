@@ -1,21 +1,24 @@
 from datetime import datetime, timedelta
-import os
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
-import site
-from pathlib import Path
 
-try:
-    # `helpers` is in the plugin directory
-    import helpers  #  import SqlQueries
-    from airflow import operators
-except ModuleNotFoundError:
-    plugin_dirpath = Path(__file__).resolve().parents[1] / "plugins"
-    assert plugin_dirpath.exists(), plugin_dirpath
-    print()
-    site.addsitedir(plugin_dirpath)
-    import operators
-    import helpers
+
+import operators
+import helpers
+# import operators
+# import helpers
+
+# try:
+#     # `helpers` is in the plugin directory
+#     import helpers  #  import SqlQueries
+#     from airflow import operators
+# except ModuleNotFoundError:
+#     plugin_dirpath = Path(__file__).resolve().parents[1] / "plugins"
+#     assert plugin_dirpath.exists(), plugin_dirpath
+#     print()
+#     site.addsitedir(plugin_dirpath)
+#     import operators
+#     import helpers
 
 
 # AWS_KEY = os.environ.get('AWS_KEY')

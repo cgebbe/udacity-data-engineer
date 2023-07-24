@@ -17,3 +17,11 @@ class UdacityPlugin(AirflowPlugin):
     helpers = [
         helpers.SqlQueries
     ]
+
+
+from airflow.plugins_manager import AirflowPlugin
+from operators import PrintMessageOperator
+
+class CustomPlugin(AirflowPlugin):
+    name = "custom_plugin"
+    operators = [PrintMessageOperator]
