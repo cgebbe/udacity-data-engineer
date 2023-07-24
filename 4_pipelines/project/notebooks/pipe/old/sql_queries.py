@@ -1,11 +1,12 @@
 """All SQL queries."""
-import configparser
-import utils
+from . import utils
+import dotenv
+import os
 
-# CONFIG
-config = configparser.ConfigParser()
-config.read("dwh.cfg")
-role = config["IAM_ROLE"]["ARN"]
+dotenv.load_dotenv()
+
+role = os.environ["REDSHIFT_ROLE"]
+s3_bucket = os.environ["S3_BUCKET"]
 
 # DROP TABLES
 staging_events_table_drop = utils.get_drop_query("event_stage_table")
@@ -17,7 +18,6 @@ artist_table_drop = utils.get_drop_query("artists")
 time_table_drop = utils.get_drop_query("time")
 
 # CREATE TABLES
-
 staging_events_table_create = """
 CREATE TABLE event_stage_table (
     artist VARCHAR(255),
@@ -39,7 +39,7 @@ CREATE TABLE event_stage_table (
     userAgent VARCHAR(255),
     userId INTEGER
 );
-""".strip()
+"""
 
 staging_songs_table_create = """
 CREATE TABLE song_stage_table (
@@ -54,7 +54,7 @@ CREATE TABLE song_stage_table (
     title VARCHAR(500),
     year INT
 );
-""".strip()
+"""
 
 songplay_table_create = """
 CREATE TABLE songplays (
@@ -68,7 +68,7 @@ CREATE TABLE songplays (
     location VARCHAR(256),
     user_agent VARCHAR(512)
 );
-""".strip()
+"""
 
 user_table_create = """
 CREATE TABLE users (
@@ -78,7 +78,7 @@ CREATE TABLE users (
     gender CHAR(1) NOT NULL,
     level VARCHAR(10) NOT NULL
 );
-""".strip()
+"""
 
 song_table_create = """
 CREATE TABLE songs (
@@ -88,7 +88,7 @@ CREATE TABLE songs (
     year INT NOT NULL,
     duration DECIMAL(10,5) NOT NULL
 );
-""".strip()
+"""
 
 artist_table_create = """
 CREATE TABLE artists (
@@ -98,7 +98,7 @@ CREATE TABLE artists (
     latitude DECIMAL(9,6),
     longitude DECIMAL(9,6)
 );
-""".strip()
+"""
 
 time_table_create = """
 CREATE TABLE time (
@@ -110,31 +110,31 @@ CREATE TABLE time (
     year INT NOT NULL,
     weekday INT NOT NULL
 );
-""".strip()
+"""
 
 # STAGING TABLES
 
 staging_events_copy = f"""
 COPY event_stage_table
-FROM 's3://udacity-dend/log-data'
-IAM_ROLE {role}
+FROM '{s3_bucket}/log_data'
+IAM_ROLE '{role}'
 --JSON 'auto' -- doesn't work, because keys don't match perfectly
-JSON 's3://udacity-dend/log_json_path.json'
+JSON '{s3_bucket}/log_json_path.json'
 STATUPDATE ON
 MAXERROR 1
 COMPUPDATE OFF;
-""".strip()
+"""
 
 staging_songs_copy = f"""
 COPY song_stage_table
--- FROM 's3://udacity-dend/song_data/A/A/A/' -- use subset
-FROM 's3://udacity-dend/song_data/'
-IAM_ROLE {role}
+FROM '{s3_bucket}/song_data/A/A/A/' -- use subset
+-- FROM '{s3_bucket}/song_data/'
+IAM_ROLE '{role}'
 JSON 'auto'
 STATUPDATE ON
 MAXERROR 1
 COMPUPDATE OFF;
-""".strip()
+"""
 
 # FINAL TABLES
 
@@ -153,26 +153,26 @@ FROM event_stage_table e
 JOIN songs s ON e.song = s.title
 JOIN artists a ON e.artist = a.name AND s.artist_id = a.artist_id
 WHERE e.page = 'NextSong';
-""".strip()
+"""
 
 user_table_insert = """
 INSERT INTO users (user_id, first_name, last_name, gender, level)
 SELECT DISTINCT userId, firstName, lastName, gender, level
 FROM event_stage_table
 WHERE userId IS NOT NULL;
-""".strip()
+"""
 
 song_table_insert = """
 INSERT INTO songs (song_id, title, artist_id, year, duration)
 SELECT DISTINCT song_id, title, artist_id, year, duration
 FROM song_stage_table;
-""".strip()
+"""
 
 artist_table_insert = """
 INSERT INTO artists (artist_id, name, location, latitude, longitude)
 SELECT DISTINCT artist_id, artist_name, artist_location, artist_latitude, artist_longitude
 FROM song_stage_table;
-""".strip()
+"""
 
 time_table_insert = """
 INSERT INTO time (start_time, hour, day, week, month, year, weekday)
@@ -186,7 +186,7 @@ SELECT DISTINCT
     EXTRACT(weekday FROM start_time) AS weekday
 FROM event_stage_table
 WHERE ts IS NOT NULL;
-""".strip()
+"""
 
 # QUERY LISTS
 
