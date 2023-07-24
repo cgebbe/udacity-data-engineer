@@ -37,6 +37,7 @@ dag = DAG(
         "email_on_retry": False,
     },
     description="Load and transform data in Redshift with Airflow",
+    # is scheduled every hour. Why is that?!
     schedule_interval="0 * * * *",
 )
 

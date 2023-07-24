@@ -27,7 +27,7 @@ class SqlQueries:
 
     song_table_insert = ("""
         SELECT distinct song_id, title, artist_id, year, duration
-        FROM staging_songs
+        FROM    songs
     """)
 
     artist_table_insert = ("""

@@ -197,14 +197,97 @@ aws s3 ls s3://${MY_S3_BUCKET}/${DIRNAME}/
   - `airflow webserver -D` # Stop webserver
   - `airflow scheduler -D` # Stop scheduler
 
-### Fill in custom operators
+## Fill in custom operators
+
+### Stage Operator
 
 - [ ] build Stage operator
 
-  - loads JSON from S3 to Redshift staging
-  - inputs
-    - s3-path
-    - redshift-table-name
+- inputs
+  - s3-path
+  - target table
+- output
+  - `staging_events` and `staging_songs`
+- methods
+  - > Another important requirement of the stage operator is containing a templated field that allows it to load timestamped files from S3 based on the execution time and run backfills.
+  - creates and runs SQL statement
+  - for both songs and events
+    - creates table ? not sure if necessary
+    - loads JSON from S3 to Redshift staging table
+- NOTES
+  - song_data
+    - has 15k files
+    - independent of timestamp
+  - log_data / event_data
+    - has 30 files and 8056 records
+    - from 2018-11-01 to 2018-11-30 (including)
+  - schedule
+    - not yet super clear how to get
+  - to get logs from redshift query editor `SELECT * FROM sys_load_error_detail LIMIT 10;`
+  - relevant hooks / operators
+    - `RedShiftHook` and `RedshiftSQLOperator`
+      - https://airflow.apache.org/docs/apache-airflow-providers-amazon/2.4.0/operators/redshift.html
+      - also offers `.copy_from_s3` method
+      - might offer additional optimizations over `PostGresHook`
+      - uses `redshift_default` as default
+    - `PostGresHook`
+    - `S3ToRedshiftOperator`
+      - https://airflow.apache.org/docs/apache-airflow-providers-amazon/1.0.0/operators/s3_to_redshift.html
+  - differences operators and hooks
+    - operator = task template
+    - hook = helper class
+- NEXT STEPS
+  - create jupyter notebook with psycopg2 and all necessary SQL statements (including loading by day?!)
+  - afterwards, simply move everything to airflow DAGs and `PostgresHook`
+
+```python
+# OPERATOR
+    setup__task_create_table = RedshiftSQLOperator(
+        task_id='setup__create_table',
+        sql="""
+            CREATE TABLE IF NOT EXISTS fruit (
+            fruit_id INTEGER,
+            name VARCHAR NOT NULL,
+            color VARCHAR NOT NULL
+            );
+        """,
+    )
+
+```
+
+```sql
+CREATE TABLE staging_events (
+    artist VARCHAR(255),
+    auth VARCHAR(255),
+    firstName VARCHAR(255),
+    gender CHAR(1),
+    itemInSession SMALLINT,
+    lastName VARCHAR(255),
+    length FLOAT,
+    level VARCHAR(50),
+    location VARCHAR(255),
+    method VARCHAR(10),
+    page VARCHAR(50),
+    registration BIGINT,
+    sessionId INTEGER,
+    song VARCHAR(255),
+    status SMALLINT,
+    ts BIGINT,
+    userAgent VARCHAR(255),
+    userId INTEGER
+);
+
+COPY staging_events
+FROM 's3://udacity-dataengineer-pipeline-project-s3/log_data'
+IAM_ROLE 'arn:aws:iam::561130499334:role/my-redshift-service-role'
+--JSON 'auto' -- doesn't work, because keys don't match perfectly
+JSON 's3://udacity-dataengineer-pipeline-project-s3/log_json_path.json'
+STATUPDATE ON
+MAXERROR 1
+COMPUPDATE OFF;
+```
+
+### Fact and Dimension Operator
 
 - [ ] build Fact and Dimension operator
   - inputs
@@ -214,6 +297,9 @@ aws s3 ls s3://${MY_S3_BUCKET}/${DIRNAME}/
     - insert_mode = {overwrite (truncate-insert), append}
       - overwrite for dimension tables
       - append for fact tables (because so long)
+
+### Data quality Operator
+
 - [ ] build Data Quality operator
   - inputs
     - SQL test statement
@@ -244,3 +330,7 @@ Load into staging
 ## Lessons learned
 
 - Redshift built on PostgreSQL variant
+
+## Solutions from other students
+
+- https://github.com/Lal4Tech/Data-Engineering-With-AWS/tree/main/4_Automate_Data_Pipelines/project
