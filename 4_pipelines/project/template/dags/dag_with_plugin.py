@@ -8,7 +8,7 @@ default_args = {
     # 'retry_delay': timedelta(minutes=5),
 }
 
-with DAG('example_custom_operator_dag', default_args=default_args, schedule_interval='@daily') as dag:
+with DAG('dag_with_plugin', default_args=default_args, schedule_interval='@daily') as dag:
     task_print_message = PrintMessageOperator(
         task_id='print_message',
         message='Hello from the custom operator!',

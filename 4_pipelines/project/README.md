@@ -138,7 +138,7 @@ ps aux | grep airflow
   - test PY file via `python my_dag.py`
   - copy file to `$AIRFLOW_HOME/dags` (or change folder in `$AIRFLOW_HOME/airflow.cfg`)
   - `airflow dags list`
-  - trigger DAG e.g. manually or via CLI
+  - trigger DAG e.g. manually or via CLI `airflow dags trigger`
 
 ```bash
 # from https://airflow.apache.org/docs/docker-stack/entrypoint.html#entrypoint-commands
@@ -252,39 +252,6 @@ aws s3 ls s3://${MY_S3_BUCKET}/${DIRNAME}/
             );
         """,
     )
-
-```
-
-```sql
-CREATE TABLE staging_events (
-    artist VARCHAR(255),
-    auth VARCHAR(255),
-    firstName VARCHAR(255),
-    gender CHAR(1),
-    itemInSession SMALLINT,
-    lastName VARCHAR(255),
-    length FLOAT,
-    level VARCHAR(50),
-    location VARCHAR(255),
-    method VARCHAR(10),
-    page VARCHAR(50),
-    registration BIGINT,
-    sessionId INTEGER,
-    song VARCHAR(255),
-    status SMALLINT,
-    ts BIGINT,
-    userAgent VARCHAR(255),
-    userId INTEGER
-);
-
-COPY staging_events
-FROM 's3://udacity-dataengineer-pipeline-project-s3/log_data'
-IAM_ROLE 'arn:aws:iam::561130499334:role/my-redshift-service-role'
---JSON 'auto' -- doesn't work, because keys don't match perfectly
-JSON 's3://udacity-dataengineer-pipeline-project-s3/log_json_path.json'
-STATUPDATE ON
-MAXERROR 1
-COMPUPDATE OFF;
 ```
 
 ### Fact and Dimension Operator
