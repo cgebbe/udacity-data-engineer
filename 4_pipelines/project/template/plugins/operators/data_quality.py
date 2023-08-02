@@ -19,9 +19,9 @@ class DataQualityOperator(BaseOperator):
         for table in self.tables:
             self.log.info(f"Checking table: {table}")
 
-            # check row count
+            # check row count. Answer is e.g. `[(6820,)]`
             records = hook.get_records(f"SELECT COUNT(*) FROM {table};")
-            self.log.info(f"len(records): {len(records)}")
+            self.log.info(f"records={records}")
             if len(records) < 1 or len(records[0]) < 1 or records[0][0] < 1:
                 raise ValueError(f"{table} contains 0 rows")
 

@@ -256,7 +256,7 @@ aws s3 ls s3://${MY_S3_BUCKET}/${DIRNAME}/
 
 ### Fact and Dimension Operator
 
-- [ ] build Fact and Dimension operator
+- [x] build Fact and Dimension operator
   - inputs
     - SQL statement
     - source table name
@@ -267,7 +267,7 @@ aws s3 ls s3://${MY_S3_BUCKET}/${DIRNAME}/
 
 ### Data quality Operator
 
-- [ ] build Data Quality operator
+- [x] build Data Quality operator
   - inputs
     - SQL test statement
     - expected test result
