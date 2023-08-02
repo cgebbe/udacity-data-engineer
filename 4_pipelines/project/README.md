@@ -201,7 +201,7 @@ aws s3 ls s3://${MY_S3_BUCKET}/${DIRNAME}/
 
 ### Stage Operator
 
-- [ ] build Stage operator
+- [x] build Stage operator
 
 - inputs
   - s3-path
@@ -262,8 +262,8 @@ aws s3 ls s3://${MY_S3_BUCKET}/${DIRNAME}/
     - source table name
     - target table name
     - insert_mode = {overwrite (truncate-insert), append}
-      - overwrite for dimension tables
-      - append for fact tables (because so long)
+      - **overwrite** for dimension tables
+      - **append** for fact tables (because so long)
 
 ### Data quality Operator
 

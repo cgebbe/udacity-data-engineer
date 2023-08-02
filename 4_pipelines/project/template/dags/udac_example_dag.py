@@ -51,22 +51,27 @@ def _create_tables_op():
     )
 
 
-@dag(
-    "udacity",
-    default_args={
+def _get_default_args(is_submission: bool) -> dict:
+    dct = {
         "owner": "udacity",
-        # "start_date": datetime(2019, 1, 12),  # doesn't start in this case?!
-        "start_date": pendulum.now(),
+        # If datetime(2019,1,12) it doesn't start?! Maybe also due to schedule_interval
+        "start_date": datetime(2019, 1, 12) if is_submission else pendulum.now(),
         "depends_on_past": False,
-        # "retries": 3,  # just annoying and extra expensive
-        "retries": 1,
+        "retries": 3 if is_submission else 1,
         "retry_delay": timedelta(minutes=5),
         "catchup": False,
         "email_on_retry": False,
-    },
+    }
+    if is_submission:
+        # If schedule interval is set seems to only start every hour?!
+        dct["schedule_interval"] == "0 * * * *"
+    return dct
+
+
+@dag(
+    "udacity",
+    default_args=_get_default_args(is_submission=False),
     description="Load and transform data in Redshift with Airflow",
-    # is scheduled every hour. If set, does not activate directly.
-    # schedule_interval="0 * * * *",
 )
 def pipe():
     start_operator = DummyOperator(task_id="Begin_execution")
@@ -99,6 +104,28 @@ def pipe():
     stage_events_to_redshift >> load_songplays_table
     stage_songs_to_redshift >> load_songplays_table
 
+    # insert dim tables
+    load_user_dimension_table = operators.LoadDimensionOperator(
+        task_id="Load_user_dim_table",
+        query=helpers.SqlQueries.user_table_insert,
+    )
+    load_song_dimension_table = operators.LoadDimensionOperator(
+        task_id="Load_song_dim_table",
+        query=helpers.SqlQueries.song_table_insert,
+    )
+    load_artist_dimension_table = operators.LoadDimensionOperator(
+        task_id="Load_artist_dim_table",
+        query=helpers.SqlQueries.artist_table_insert,
+    )
+    load_time_dimension_table = operators.LoadDimensionOperator(
+        task_id="Load_time_dim_table",
+        query=helpers.SqlQueries.time_table_insert,
+    )
+    load_songplays_table >> load_user_dimension_table
+    load_songplays_table >> load_song_dimension_table
+    load_songplays_table >> load_artist_dimension_table
+    load_songplays_table >> load_time_dimension_table
+
 
 pipe_dag = pipe()
 
@@ -106,24 +133,6 @@ pipe_dag = pipe()
 if 0:
 
     # LOAD DIM TABLES
-
-    load_user_dimension_table = operators.LoadDimensionOperator(
-        task_id="Load_user_dim_table", dag=dag
-    )
-    load_song_dimension_table = operators.LoadDimensionOperator(
-        task_id="Load_song_dim_table", dag=dag
-    )
-    load_artist_dimension_table = operators.LoadDimensionOperator(
-        task_id="Load_artist_dim_table", dag=dag
-    )
-    load_time_dimension_table = operators.LoadDimensionOperator(
-        task_id="Load_time_dim_table", dag=dag
-    )
-
-    load_songplays_table >> load_user_dimension_table
-    load_songplays_table >> load_song_dimension_table
-    load_songplays_table >> load_artist_dimension_table
-    load_songplays_table >> load_time_dimension_table
 
     # QUALITY
 
