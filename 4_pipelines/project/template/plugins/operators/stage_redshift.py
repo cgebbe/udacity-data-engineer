@@ -42,6 +42,7 @@ class StageToRedshiftOperator(BaseOperator):
         COMPUPDATE OFF;
         """
 
+        self.log.info(f"Running query: {query}")
         hook = PostgresHook(postgres_conn_id="redshift")
         hook.run(
             sql=_clean_query(query),

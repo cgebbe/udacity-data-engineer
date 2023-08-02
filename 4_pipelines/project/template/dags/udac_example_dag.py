@@ -63,8 +63,9 @@ def _get_default_args(is_submission: bool) -> dict:
         "email_on_retry": False,
     }
     if is_submission:
-        # If schedule interval is set seems to only start every hour?!
-        dct["schedule_interval"] == "0 * * * *"
+        # Will start at the 0th minute of every hour.
+        # minutes, hours, day of the month, month, and day of the week
+        dct["schedule_interval"] = "0 * * * *"
     return dct
 
 
@@ -108,6 +109,7 @@ def pipe():
     load_user_dimension_table = operators.LoadDimensionOperator(
         task_id="Load_user_dim_table",
         query=helpers.SqlQueries.user_table_insert,
+        overwrite=True,  # mark one dim-table to test this option
     )
     load_song_dimension_table = operators.LoadDimensionOperator(
         task_id="Load_song_dim_table",

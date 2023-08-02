@@ -13,6 +13,7 @@ class LoadFactOperator(BaseOperator):
         self.query = query
 
     def execute(self, context):
+        self.log.info(f"self.query={self.query}")
         hook = PostgresHook(postgres_conn_id="redshift")
         hook.run(
             sql=self.query,
