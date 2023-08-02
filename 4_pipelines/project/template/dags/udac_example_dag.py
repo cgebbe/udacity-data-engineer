@@ -75,7 +75,7 @@ def pipe():
     create_tables = _create_tables_op()
     start_operator >> create_tables
 
-    # STAGE
+    # stage tables
     stage_songs_to_redshift = operators.StageToRedshiftOperator(
         task_id="stage_songs",
         redshift_table_name="staging_songs",
@@ -91,20 +91,19 @@ def pipe():
     create_tables >> stage_events_to_redshift
     create_tables >> stage_songs_to_redshift
 
+    # insert fact table
+    load_songplays_table = operators.LoadFactOperator(
+        task_id="Load_songplays_fact_table",
+        query=helpers.SqlQueries.songplay_table_insert,
+    )
+    stage_events_to_redshift >> load_songplays_table
+    stage_songs_to_redshift >> load_songplays_table
+
 
 pipe_dag = pipe()
 
 
 if 0:
-
-    # LOAD SONGPLAYS
-
-    load_songplays_table = operators.LoadFactOperator(
-        task_id="Load_songplays_fact_table", dag=dag
-    )
-
-    stage_events_to_redshift << load_songplays_table
-    stage_songs_to_redshift << load_songplays_table
 
     # LOAD DIM TABLES
 
@@ -121,10 +120,10 @@ if 0:
         task_id="Load_time_dim_table", dag=dag
     )
 
-    load_songplays_table << load_user_dimension_table
-    load_songplays_table << load_song_dimension_table
-    load_songplays_table << load_artist_dimension_table
-    load_songplays_table << load_time_dimension_table
+    load_songplays_table >> load_user_dimension_table
+    load_songplays_table >> load_song_dimension_table
+    load_songplays_table >> load_artist_dimension_table
+    load_songplays_table >> load_time_dimension_table
 
     # QUALITY
 
