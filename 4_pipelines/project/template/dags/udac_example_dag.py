@@ -126,27 +126,19 @@ def pipe():
     load_songplays_table >> load_artist_dimension_table
     load_songplays_table >> load_time_dimension_table
 
+    # # run quality checks
+    run_quality_checks = operators.DataQualityOperator(
+        task_id="Run_data_quality_checks",
+        tables=["songplays", "users", "songs", "artists", "time"],
+    )
+    load_user_dimension_table >> run_quality_checks
+    load_song_dimension_table >> run_quality_checks
+    load_artist_dimension_table >> run_quality_checks
+    load_time_dimension_table >> run_quality_checks
+
+    # end
+    end_operator = DummyOperator(task_id="Stop_execution")
+    run_quality_checks >> end_operator
+
 
 pipe_dag = pipe()
-
-
-if 0:
-
-    # LOAD DIM TABLES
-
-    # QUALITY
-
-    run_quality_checks = operators.DataQualityOperator(
-        task_id="Run_data_quality_checks", dag=dag
-    )
-
-    load_user_dimension_table << run_quality_checks
-    load_song_dimension_table << run_quality_checks
-    load_artist_dimension_table << run_quality_checks
-    load_time_dimension_table << run_quality_checks
-
-    # END
-
-    end_operator = DummyOperator(task_id="Stop_execution", dag=dag)
-
-    run_quality_checks << end_operator
