@@ -17,6 +17,8 @@ import pendulum
 from typing import List
 from pathlib import Path
 
+IS_SUBMISSION = True
+
 
 def _filter_empty_items(lst):
     return [x for x in lst if x]
@@ -51,18 +53,18 @@ def _create_tables_op():
     )
 
 
-def _get_default_args(is_submission: bool) -> dict:
+def _get_default_args() -> dict:
     dct = {
         "owner": "udacity",
         # If datetime(2019,1,12) it doesn't start?! Maybe also due to schedule_interval
-        "start_date": datetime(2019, 1, 12) if is_submission else pendulum.now(),
+        "start_date": datetime(2019, 1, 12) if IS_SUBMISSION else pendulum.now(),
         "depends_on_past": False,
-        "retries": 3 if is_submission else 1,
+        "retries": 3 if IS_SUBMISSION else 1,
         "retry_delay": timedelta(minutes=5),
         "catchup": False,
         "email_on_retry": False,
     }
-    if is_submission:
+    if IS_SUBMISSION:
         # Will start at the 0th minute of every hour.
         # minutes, hours, day of the month, month, and day of the week
         dct["schedule_interval"] = "0 * * * *"
@@ -71,7 +73,7 @@ def _get_default_args(is_submission: bool) -> dict:
 
 @dag(
     "udacity",
-    default_args=_get_default_args(is_submission=False),
+    default_args=_get_default_args(),
     description="Load and transform data in Redshift with Airflow",
 )
 def pipe():
