@@ -17,7 +17,7 @@ import pendulum
 from typing import List
 from pathlib import Path
 
-IS_SUBMISSION = True
+IS_SUBMISSION = False
 
 
 def _filter_empty_items(lst):
@@ -35,7 +35,7 @@ def _create_tables_op():
         "time",
         "users",
     ]:
-        drop_queries.append(f" DROP TABLE IF EXISTS {t};")
+        drop_queries.append(f"DROP TABLE IF EXISTS public.{t};")
 
     filepath = Path(__file__).parent / "new/create_tables.sql"
     assert filepath.exists(), filepath
@@ -53,27 +53,19 @@ def _create_tables_op():
     )
 
 
-def _get_default_args() -> dict:
-    dct = {
-        "owner": "udacity",
-        # If datetime(2019,1,12) it doesn't start?! Maybe also due to schedule_interval
-        "start_date": datetime(2019, 1, 12) if IS_SUBMISSION else pendulum.now(),
-        "depends_on_past": False,
-        "retries": 3 if IS_SUBMISSION else 1,
-        "retry_delay": timedelta(minutes=5),
-        "catchup": False,
-        "email_on_retry": False,
-    }
-    if IS_SUBMISSION:
-        # Will start at the 0th minute of every hour.
-        # minutes, hours, day of the month, month, and day of the week
-        dct["schedule_interval"] = "0 * * * *"
-    return dct
-
 
 @dag(
-    "udacity",
-    default_args=_get_default_args(),
+    dag_id="udacity",
+    default_args={
+        "owner": "udacity",
+        'depends_on_past': False,
+        "retries": 3 if IS_SUBMISSION else 1,
+        'retry_delay': timedelta(minutes=5),
+        "catchup": False,
+        "email_on_retry": False,
+    },
+    start_date=datetime(2019,1,12) if IS_SUBMISSION else pendulum.now(),
+    schedule_interval="@hourly",
     description="Load and transform data in Redshift with Airflow",
 )
 def pipe():

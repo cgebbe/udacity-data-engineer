@@ -142,7 +142,7 @@ ps aux | grep airflow
 
 ```bash
 # from https://airflow.apache.org/docs/docker-stack/entrypoint.html#entrypoint-commands
-docker run -it -p 8080:8080 -v "/mnt/sda1":"/mnt/sda1" --name airflow apache/airflow:latest bash
+docker run -it -p 8080:8080 -v "/mnt/sda1":"/mnt/sda1" --name airflow apache/airflow:2.3.2 bash
 
 # later on:
 docker start airflow
@@ -158,6 +158,10 @@ airflow webserver
 
 # start airflow scheduler
 airflow scheduler
+
+# Open ~/airflow/airflow.cfg and change DAG and plugin folder to
+/home/workspace/udacity_data_engineer/4_pipelines/project/template/dags
+/home/workspace/udacity_data_engineer/4_pipelines/project/template/plugins
 ```
 
 ### Copy data to own S3 bucket
