@@ -2,6 +2,14 @@ from airflow.hooks.postgres_hook import PostgresHook
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 from typing import List
+from dataclasses import dataclass, asdict
+
+
+@dataclass
+class CheckOperation:
+    table: str
+    query: str
+    expected_result: str
 
 
 class DataQualityOperator(BaseOperator):
@@ -9,22 +17,27 @@ class DataQualityOperator(BaseOperator):
     ui_color = "#89DA59"
 
     @apply_defaults
-    def __init__(self, tables: List[str], *args, **kwargs):
+    def __init__(self, checks: List[CheckOperation], verbose=True, *args, **kwargs):
         super(DataQualityOperator, self).__init__(*args, **kwargs)
-        self.tables = tables
+        self.checks = checks
+        self.verbose = verbose
 
     def execute(self, context):
         del context
         hook = PostgresHook(postgres_conn_id="redshift")
-        for table in self.tables:
-            self.log.info(f"Checking table: {table}")
+        for c in self.checks:
+            self.log.info(f"Checking {asdict(c)}")
 
-            # check row count. Answer is e.g. `[(6820,)]`
-            records = hook.get_records(f"SELECT COUNT(*) FROM {table};")
-            self.log.info(f"records={records}")
-            if len(records) < 1 or len(records[0]) < 1 or records[0][0] < 1:
-                raise ValueError(f"{table} contains 0 rows")
+            if self.verbose:
+                self._run(hook, f"SELECT COUNT(*) FROM {c.table};")
+                self._run(hook, f"SELECT * FROM {c.table} LIMIT 3;")
 
-            # log first three rows
-            records = hook.get_records(f"SELECT * FROM {table} LIMIT 3")
-            self.log.info(f"First three records for table are: {records}")
+            records = self._run(hook, c.query)
+            if records != c.expected_result:
+                raise ValueError(f"Expected {records} to equal {c.expected_result}")
+
+    def _run(self, hook: PostgresHook, query: str):
+        self.log.info(f"Running query={query}")
+        records = hook.get_records(query)
+        self.log.info(f"records={records}")
+        return records

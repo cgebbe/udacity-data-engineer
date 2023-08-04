@@ -302,6 +302,35 @@ Load into staging
 
 - Redshift built on PostgreSQL variant
 
+### How to check pending queries
+
+- SQL statement below should work, but doesn't in redshift serverless
+  - see https://stackoverflow.com/a/73859105/2135504
+- simpler is: AWS Redshift GUI -> Monitoring -> Queries
+  - one `COPY staging_songs` query took 40min?!?
+
+```sql
+SELECT
+    pid,
+    user_name,
+    starttime,
+    status,
+    query,
+    trim(querytxt) as querytxt
+FROM
+    stv_recents
+WHERE
+    status = 'Running' OR status = 'Queued';
+
+
+-- Grant access to current user, from https://stackoverflow.com/q/72604117/2135504
+grant select on svv_redshift_databases to awsuser;
+grant select on svv_all_schemas to awsuser;
+grant select on svv_all_tables to awsuser;
+
+--
+```
+
 ## Solutions from other students
 
 - https://github.com/Lal4Tech/Data-Engineering-With-AWS/tree/main/4_Automate_Data_Pipelines/project

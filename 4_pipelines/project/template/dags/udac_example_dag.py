@@ -53,18 +53,17 @@ def _create_tables_op():
     )
 
 
-
 @dag(
     dag_id="udacity",
     default_args={
         "owner": "udacity",
-        'depends_on_past': False,
+        "depends_on_past": False,
         "retries": 3 if IS_SUBMISSION else 1,
-        'retry_delay': timedelta(minutes=5),
+        "retry_delay": timedelta(minutes=5),
         "catchup": False,
         "email_on_retry": False,
     },
-    start_date=datetime(2019,1,12) if IS_SUBMISSION else pendulum.now(),
+    start_date=datetime(2019, 1, 12) if IS_SUBMISSION else pendulum.now(),
     schedule_interval="@hourly",
     description="Load and transform data in Redshift with Airflow",
 )
@@ -79,7 +78,9 @@ def pipe():
     stage_songs_to_redshift = operators.StageToRedshiftOperator(
         task_id="stage_songs",
         redshift_table_name="staging_songs",
-        s3_path="s3://udacity-dataengineer-pipeline-project-s3/song_data/A/A/A/",
+        s3_path="s3://udacity-dataengineer-pipeline-project-s3/song_data/"
+        if IS_SUBMISSION
+        else "s3://udacity-dataengineer-pipeline-project-s3/song_data/A/A/A/",
         json_method="auto",
     )
     stage_events_to_redshift = operators.StageToRedshiftOperator(
@@ -125,7 +126,14 @@ def pipe():
     # # run quality checks
     run_quality_checks = operators.DataQualityOperator(
         task_id="Run_data_quality_checks",
-        tables=["songplays", "users", "songs", "artists", "time"],
+        checks=[
+            operators.CheckOperation(
+                table=t,
+                query="SELECT COUNT(*) FROM {t} WHERE userid is null",
+                expected_result=0,
+            )
+            for t in ["songplays", "users", "songs", "artists", "time"]
+        ],
     )
     load_user_dimension_table >> run_quality_checks
     load_song_dimension_table >> run_quality_checks
